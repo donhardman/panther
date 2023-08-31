@@ -16,6 +16,7 @@ namespace Symfony\Component\Panther\ProcessManager;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Process\Process;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Throwable;
 
 /**
  * @internal
@@ -31,7 +32,11 @@ trait WebServerReadinessProbeTrait
     {
         $currentState = error_reporting();
         error_reporting(0);
-        $resource = fsockopen($hostname, $port);
+        try {
+            $resource = fsockopen($hostname, $port);
+        } catch (Throwable) {
+            return;
+        }
         error_reporting($currentState);
         if (\is_resource($resource)) {
             fclose($resource);
